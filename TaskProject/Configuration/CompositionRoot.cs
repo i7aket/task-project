@@ -30,36 +30,37 @@ public static class CompositionRoot
     {
         services
             .AddScoped<ISocialNetworksService, SocialNetworksService>()
-            .AddScoped<ICurrentUserService, CurrentUserService>()
             .AddAuthentication()
             .AddInstagram(instagramOptions =>
             {
                 instagramOptions.ClientId = configuration["Authentication:Instagram:ClientId"];
                 instagramOptions.ClientSecret = configuration["Authentication:Instagram:ClientSecret"];
-                
+
                 //TODO: AddScope, AddFields, Add saving of profile link to applicationuser
             })
             .AddGoogle(googleOptions =>
             {
                 googleOptions.ClientId = configuration["Authentication:Google:ClientId"];
                 googleOptions.ClientSecret = configuration["Authentication:Google:ClientSecret"];
-                
+
                 //TODO: AddScope, AddFields,  Add saving of profile link to applicationuser
             })
             .AddFacebook(facebookOptions =>
             {
                 facebookOptions.AppId = configuration["Authentication:Facebook:AppId"];
                 facebookOptions.AppSecret = configuration["Authentication:Facebook:AppSecret"];
-                
+
                 //TODO: AddScope, AddFields,  Add saving of profile link to applicationuser
             })
             .AddLinkedIn(linkedInOptions =>
             {
                 linkedInOptions.ClientId = configuration["Authentication:LinkedIn:ClientId"];
                 linkedInOptions.ClientSecret = configuration["Authentication:LinkedIn:ClientSecret"];
-                
+
                 //TODO: AddScope, AddFields,  Add saving of profile link to applicationuser
             });
+        
+            services.AddScoped<ICurrentUserService, CurrentUserService>();
 
         return services;
     }

@@ -1,0 +1,18 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: task-project
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: task-project
+    ports:
+      - "60023:5432"
+    volumes:
+      - task-project_data:/var/lib/postgresql/data
+    restart: always
+
+volumes:
+  task-project_data:

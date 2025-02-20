@@ -1,0 +1,109 @@
+﻿@page "/"
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.EntityFrameworkCore
+@using TaskProject.Data
+@using TaskProject.Services
+@using Radzen.Blazor
+@inject ApplicationDbContext Context
+@inject NavigationManager NavigationManager
+@inject ICurrentUserService CurrentUserService
+@inject ISocialNetworksService SocialNetworksService
+
+@attribute [Authorize]
+
+<PageTitle>Social Networks</PageTitle>
+<RadzenCardGroup>
+<RadzenCard>
+        <RadzenButton Click="@LinkFacebook" Text="Link Facebook"/>
+        <RadzenButton Click="@GoToFacebook" Text="Go to Facebook page"/>
+    </RadzenCard>
+    <RadzenCard>
+        <RadzenButton Click="@LinkInstagram" Text="Link Instagram"/>
+        <RadzenButton Click="@GoToInstagram" Text="Go to Instagram page"/>
+    </RadzenCard>
+</RadzenCardGroup>
+<RadzenCardGroup>
+    <RadzenCard>
+        <RadzenButton Click="@LinkLinkedIn" Text="Link LinkedIn"/>
+        <RadzenButton Click="@GoToLinkedIn" Text="Go to LinkedIn page"/>
+    </RadzenCard>
+    <RadzenCard>
+        <RadzenButton Click="@LinkGoogle" Text="Link Google"/>
+        <RadzenButton Click="@GoToGoogle" Text="Go to Google page"/>
+    </RadzenCard>
+</RadzenCardGroup>
+
+@code
+{
+    private ApplicationUser? User { get; set; }
+
+    private string? Facebook { get; set; }
+    private string? LinkedIn { get; set; }
+    private string? Instagram { get; set; }
+    private string? Google { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Guid id = await CurrentUserService.GetCurrentUserIdAsync();
+
+        if (id == Guid.Empty)
+        {
+            NavigationManager.NavigateTo("/Account/Manage/Login", true);
+            return;
+        }
+
+        User = await Context.Users.FirstOrDefaultAsync(x => x.Id == id);
+
+        if (User == null)
+        {
+            NavigationManager.NavigateTo("/Account/Manage/Login", true);
+            return;
+        }
+
+        Facebook = User.FacebookProfileLink;
+        LinkedIn = User.LinkedInProfileLink;
+        Instagram = User.InstagramProfileLink;
+        Google = User.GoogleProfileLink;
+    }
+
+    private async Task LinkFacebook(MouseEventArgs arg)
+    {
+        Uri link = await SocialNetworksService.GetUserSocialNetworkProfileUrlForFacebookAsync();
+        User!.UpdateFacebookProfileLink(link.ToString());
+        await Context.SaveChangesAsync();
+    }
+
+    private async Task LinkInstagram(MouseEventArgs arg)
+    {
+        Uri link = await SocialNetworksService.GetUserSocialNetworkProfileUrlForInstagramAsync();
+        User!.UpdateInstagramProfileLink(link.ToString());
+        await Context.SaveChangesAsync();
+    }
+
+    private async Task LinkLinkedIn(MouseEventArgs arg)
+    {
+        Uri link = await SocialNetworksService.GetUserSocialNetworkProfileUrlForLinkedInAsync();
+        User!.UpdateLinkedInProfileLink(link.ToString());
+        await Context.SaveChangesAsync();
+    }
+
+    private async Task LinkGoogle(MouseEventArgs arg)
+    {
+        Uri link = await SocialNetworksService.GetUserSocialNetworkProfileUrlForGoogleAsync();
+        User!.UpdateGoogleProfileLink(link.ToString());
+        await Context.SaveChangesAsync();
+    }
+
+    private void GoToFacebook(MouseEventArgs arg) => OpenUrl(Facebook);
+    private void GoToInstagram(MouseEventArgs arg) => OpenUrl(Instagram);
+    private void GoToLinkedIn(MouseEventArgs arg) => OpenUrl(LinkedIn);
+    private void GoToGoogle(MouseEventArgs arg) => OpenUrl(Google);
+
+    private void OpenUrl(string? url)
+    {
+        if (!string.IsNullOrEmpty(url))
+        {
+            NavigationManager.NavigateTo(url, true);
+        }
+    }
+}

@@ -1,0 +1,35 @@
+﻿@using Radzen
+@using Radzen.Blazor
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <RadzenTheme Theme="material"/>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <base href="/"/>
+    <link rel="stylesheet" href="@Assets["bootstrap/bootstrap.min.css"]"/>
+    <link rel="stylesheet" href="@Assets["app.css"]"/>
+    <link rel="stylesheet" href="@Assets["TaskProject.styles.css"]"/>
+    <ImportMap/>
+    <link rel="icon" type="image/png" href="favicon.png"/>
+    <component type="typeof(RadzenTheme)" render-mode="ServerPrerendered" param-Theme="@("material")"/>
+    <HeadOutlet/>
+</head>
+
+<body>
+<Routes @rendermode="RenderModeForPage"/>
+<script src="_framework/blazor.web.js"></script>
+<script src="_content/Radzen.Blazor/Radzen.Blazor.js?v=@(typeof(Colors).Assembly.GetName().Version)"></script>
+</body>
+
+</html>
+
+@code {
+    [CascadingParameter] private HttpContext HttpContext { get; set; } = default!;
+
+    private IComponentRenderMode? RenderModeForPage => HttpContext.Request.Path.StartsWithSegments("/Account")
+        ? null
+        : InteractiveServer;
+
+}
